@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>FRP Dice Roller</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: hsl(0, 0%, 0%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding-top: 20px;
+    }
+
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 15px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .sidebar button:hover,
+    .sidebar button.active {
+      background: #e87127;
+    }
+
+    .logo {
+      max-width: 200px;
+    }
+
+    /* Content */
+    .content {
+      flex: 1;
+      background: #ffffff;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .content h1 {
+      color: #e87127;
+    }
+
+    .page {
+      display: none;
+      height: 100%;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* Dice Roller */
+    .dice-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .dice-card {
+      border: 3px solid #000;
+      border-radius: 10px;
+      text-align: center;
+      padding: 20px;
+      background: #e87127;
+      transition: transform 0.3s;
+    }
+
+    .dice-card:hover {
+      transform: scale(1.05);
+      cursor: pointer;
+    }
+
+    .dice-card h5 {
+      margin: 0;
+      color: #fff;
+    }
+
+    .rolling {
+      animation: bounce-spin 0.7s ease;
+    }
+
+    @keyframes bounce-spin {
+      0% {
+        transform: scale(1) rotate(0deg);
+      }
+
+      25% {
+        transform: scale(1.3) rotate(90deg);
+      }
+
+      50% {
+        transform: scale(0.9) rotate(180deg);
+      }
+
+      75% {
+        transform: scale(1.2) rotate(270deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(360deg);
+      }
+    }
+
+    .history {
+      margin-top: 15px;
+      max-height: 550px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 10px;
+      display: none;
+    }
+
+    .history-item {
+      border-bottom: 1px solid #dee2e6;
+      padding: 4px 0;
+    }
+
+    .btn-group {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .reset-btn {
+      background: #e87127;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover {
+      background: #d45f1f;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="sidebar">
+    <img src="https://i.imgur.com/xXBY0sU.jpg" alt="Logo" class="logo">
+
+
+    <button data-page="dnd" class="active">Dungeons & Dragons</button>
+    <button data-page="pathfinder">Pathfinder</button>
+    <button data-page="warhammer">Warhammer FRP</button>
+    <button data-page="cthulhu">Call of Cthulhu</button>
+  </div>
+
+  <div class="content">
+    <!-- D&D Page -->
+    <div id="dnd" class="page active">
+      <h1>Dungeons & Dragons</h1>
+      <p>Click a die to roll.</p>
+      <div class="dice-container">
+        <div class="dice-card" onclick="rollDie(20,'d20','dnd')">
+          <h5>d20</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(4,'d4','dnd')">
+          <h5>d4</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(6,'d6','dnd')">
+          <h5>d6</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(8,'d8','dnd')">
+          <h5>d8</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(10,'d10','dnd')">
+          <h5>d10</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(12,'d12','dnd')">
+          <h5>d12</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(100,'d%','dnd')">
+          <h5>d%</h5>
+        </div>
+      </div>
+      <h3 style="margin-top:20px;color:#e87127;">Last Roll:</h3>
+      <hr>
+      <div id="result-dnd"></div>
+      <h3 style="color:#e87127; margin-top:15px;">History:</h3>
+      <hr>
+      <div id="history-dnd" class="history"></div>
+      <div class="btn-group">
+        <button class="reset-btn" onclick="resetHistory('dnd')">Reset History</button>
+        <button class="reset-btn" onclick="exportHistory('dnd','excel')">Export Excel</button>
+        <button class="reset-btn" onclick="exportHistory('dnd','txt')">Export TXT</button>
+      </div>
+    </div>
+
+    <!-- Pathfinder Page -->
+    <div id="pathfinder" class="page">
+      <h1>Pathfinder</h1>
+      <p>Click a die to roll.</p>
+      <div class="dice-container">
+        <div class="dice-card" onclick="rollDie(20,'d20','pathfinder')">
+          <h5>d20</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(4,'d4','pathfinder')">
+          <h5>d4</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(6,'d6','pathfinder')">
+          <h5>d6</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(8,'d8','pathfinder')">
+          <h5>d8</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(10,'d10','pathfinder')">
+          <h5>d10</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(12,'d12','pathfinder')">
+          <h5>d12</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(100,'d%','pathfinder')">
+          <h5>d%</h5>
+        </div>
+      </div>
+      <h3 style="margin-top:20px;color:#e87127;">Last Roll:</h3>
+      <hr>
+      <div id="result-pathfinder"></div>
+      <h3 style="color:#e87127; margin-top:15px;">History:</h3>
+      <hr>
+      <div id="history-pathfinder" class="history"></div>
+      <div class="btn-group">
+        <button class="reset-btn" onclick="resetHistory('pathfinder')">Reset History</button>
+        <button class="reset-btn" onclick="exportHistory('pathfinder','excel')">Export Excel</button>
+        <button class="reset-btn" onclick="exportHistory('pathfinder','txt')">Export TXT</button>
+      </div>
+    </div>
+
+    <!-- Warhammer Page -->
+    <div id="warhammer" class="page">
+      <h1>Warhammer FRP</h1>
+      <p>Click a die to roll.</p>
+      <div class="dice-container">
+        <div class="dice-card" onclick="rollDie(100,'d%','warhammer')">
+          <h5>d%</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(10,'d10','warhammer')">
+          <h5>d10</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(6,'d6','warhammer')">
+          <h5>d6</h5>
+        </div>
+      </div>
+      <h3 style="margin-top:20px;color:#e87127;">Last Roll:</h3>
+      <hr>
+      <div id="result-warhammer"></div>
+      <h3 style="color:#e87127; margin-top:15px;">History:</h3>
+      <hr>
+      <div id="history-warhammer" class="history"></div>
+      <div class="btn-group">
+        <button class="reset-btn" onclick="resetHistory('warhammer')">Reset History</button>
+        <button class="reset-btn" onclick="exportHistory('warhammer','excel')">Export Excel</button>
+        <button class="reset-btn" onclick="exportHistory('warhammer','txt')">Export TXT</button>
+      </div>
+    </div>
+
+    <!-- Call of Cthulhu Page -->
+    <div id="cthulhu" class="page">
+      <h1>Call of Cthulhu</h1>
+      <p>Click a die to roll.</p>
+      <div class="dice-container">
+        <div class="dice-card" onclick="rollDie(100,'d%','cthulhu')">
+          <h5>d%</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(10,'d10','cthulhu')">
+          <h5>d10</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(4,'d4','cthulhu')">
+          <h5>d4</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(6,'d6','cthulhu')">
+          <h5>d6</h5>
+        </div>
+        <div class="dice-card" onclick="rollDie(8,'d8','cthulhu')">
+          <h5>d8</h5>
+        </div>
+      </div>
+      <h3 style="margin-top:20px;color:#e87127;">Last Roll:</h3>
+      <hr>
+      <div id="result-cthulhu"></div>
+      <h3 style="color:#e87127; margin-top:15px;">History:</h3>
+      <hr>
+      <div id="history-cthulhu" class="history"></div>
+      <div class="btn-group">
+        <button class="reset-btn" onclick="resetHistory('cthulhu')">Reset History</button>
+        <button class="reset-btn" onclick="exportHistory('cthulhu','excel')">Export Excel</button>
+        <button class="reset-btn" onclick="exportHistory('cthulhu','txt')">Export TXT</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Author: Lycradiata
+
+    // Sidebar navigation
+    const buttons = document.querySelectorAll(".sidebar button");
+    const pages = document.querySelectorAll(".page");
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const pageId = btn.getAttribute("data-page");
+        pages.forEach(p => {
+          p.classList.remove("active");
+          if (p.id === pageId) p.classList.add("active");
+        });
+      });
+    });
+
+    // Roll a die
+    function rollDie(sides, label, game) {
+      const card = event.currentTarget;
+      card.classList.add('rolling');
+      setTimeout(() => card.classList.remove('rolling'), 700);
+
+      const result = Math.floor(Math.random() * sides) + 1;
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+      const text = `Dice: ${label} ${result} | Date: ${dateStr}`;
+      document.getElementById(`result-${game}`).textContent = text;
+
+      addHistory(game, label, result, dateStr);
+    }
+
+    // Add entry to history
+    function addHistory(game, label, result, dateStr) {
+      const list = document.getElementById(`history-${game}`);
+      const item = document.createElement('div');
+      item.classList.add('history-item');
+      item.textContent = `Dice: ${label} ${result} | Date: ${dateStr}`;
+      list.prepend(item);
+      list.style.display = 'block';
+    }
+
+    // Reset history
+    function resetHistory(game) {
+      const list = document.getElementById(`history-${game}`);
+      list.innerHTML = '';
+      list.style.display = 'none';
+      document.getElementById(`result-${game}`).textContent = '';
+    }
+
+    // Export history
+    function exportHistory(game, type) {
+      const list = document.getElementById(`history-${game}`);
+      const items = Array.from(list.querySelectorAll('.history-item')).map(i => i.textContent);
+      if (items.length === 0) { alert("No history to export."); return; }
+
+      if (type === 'txt') {
+        const blob = new Blob([items.join("\n")], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${game}_history.txt`;
+        a.click();
+      }
+
+      if (type === 'excel') {
+        let csvContent = "data:text/csv;charset=utf-8,Dice,Result,Date\n";
+        items.forEach(i => {
+          let parts = i.replace('Dice: ', '').split(' | Date: ');
+          let diceVal = parts[0].split(' ');
+          csvContent += diceVal[0] + ',' + diceVal[1] + ',' + parts[1] + "\n";
+        });
+        const a = document.createElement("a");
+        a.href = encodeURI(csvContent);
+        a.download = `${game}_history.csv`;
+        a.click();
+      }
+    }
+  </script>
+
+</body>
+
+</html>
