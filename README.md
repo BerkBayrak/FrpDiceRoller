@@ -1,4 +1,4 @@
-# FrpDiceRoller
+# FRP Dice Roller
 Dice Master is a simple web application for rolling dice in popular tabletop RPGs like Dungeons & Dragons, Pathfinder, Warhammer, and Call of Cthulhu.
 You can roll dice, see the result, keep a history with date and time, and export it as TXT or Excel.
 
